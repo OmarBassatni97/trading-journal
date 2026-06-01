@@ -71,3 +71,11 @@ Create a `.env` file in both `client/` and `server/` directories. See `.env.exam
 ## License
 
 MIT
+
+# Terminal 1 — server
+
+cd server && npx ts-node src/index.ts
+
+# Terminal 2 — client
+
+cd client && npm run dev

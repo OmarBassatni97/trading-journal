@@ -1,0 +1,33 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Trade {
+  id          Int      @id @default(autoincrement())
+  date        String
+  asset       String   @default("US100")
+  bias        String
+  biasReason  String?
+  entry       Float?
+  sl          Float?
+  tp          Float?
+  time        String?
+  rr          String?
+  outcome     String
+  good        String?
+  improve     String?
+  checkCount  Int      @default(0)
+  checks      String   @default("[]")
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+}
