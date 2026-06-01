@@ -1,31 +1,27 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import TradeForm from '@/components/TradeForm';
 import History from '@/components/History';
 import Stats from '@/components/Stats';
 import CalendarView from '@/components/CalendarView';
 import ConfirmDialog from '@/components/ConfirmDialog';
-import ToastStack, { ToastData } from '@/components/ToastStack';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trade, NewTrade } from '@/types/trade';
 import { getTrades, createTrade, deleteTrade, updateTrade, uploadTradeImage } from '@/lib/api';
 
 type Tab = 'log' | 'history' | 'calendar' | 'stats';
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'log', label: 'Log trade' },
-  { id: 'history', label: 'History' },
-  { id: 'calendar', label: 'Calendar' },
-  { id: 'stats', label: 'Stats' },
-];
-
-let nextToastId = 0;
+const TRIGGER_CLS =
+  'px-4 py-1.5 rounded-full text-sm font-medium border transition-all shadow-none ' +
+  'data-[state=active]:bg-white data-[state=active]:border-gray-300 data-[state=active]:text-gray-900 data-[state=active]:shadow-sm ' +
+  'data-[state=inactive]:bg-transparent data-[state=inactive]:border-transparent data-[state=inactive]:text-gray-400 data-[state=inactive]:hover:text-gray-600';
 
 export default function Home() {
   const [tab, setTab] = useState<Tab>('log');
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
-  const [toasts, setToasts] = useState<ToastData[]>([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -33,15 +29,6 @@ export default function Home() {
       .then(setTrades)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
-
-  const addToast = useCallback((message: string, type: ToastData['type'] = 'success') => {
-    const id = ++nextToastId;
-    setToasts(prev => [...prev, { id, message, type }]);
-  }, []);
-
-  const dismissToast = useCallback((id: number) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
   }, []);
 
   async function handleSave(trade: NewTrade, imageFile?: File) {
@@ -60,9 +47,9 @@ export default function Home() {
     try {
       await deleteTrade(confirmDeleteId);
       setTrades(prev => prev.filter(t => t.id !== confirmDeleteId));
-      addToast('Trade deleted');
+      toast('Trade deleted');
     } catch {
-      addToast('Failed to delete trade', 'error');
+      toast.error('Failed to delete trade');
     } finally {
       setConfirmDeleteId(null);
     }
@@ -77,9 +64,9 @@ export default function Home() {
       } else {
         setTrades(prev => prev.map(t => t.id === id ? updated : t));
       }
-      addToast('Trade updated');
+      toast('Trade updated');
     } catch {
-      addToast('Failed to update trade', 'error');
+      toast.error('Failed to update trade');
     }
   }
 
@@ -91,32 +78,32 @@ export default function Home() {
           <p className="text-sm text-gray-400 mt-0.5">US100 · ICT / SMC Strategy</p>
         </header>
 
-        <div className="flex gap-2 mb-6">
-          {TABS.map(t => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${tab === t.id
-                ? 'bg-white border-gray-300 text-gray-900 shadow-sm'
-                : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600'
-                }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+        <Tabs value={tab} onValueChange={v => setTab(v as Tab)} className="space-y-6">
+          <TabsList className="w-full bg-transparent p-0 gap-1 flex justify-start h-auto">
+            <TabsTrigger value="log" className={TRIGGER_CLS}>Log trade</TabsTrigger>
+            <TabsTrigger value="history" className={TRIGGER_CLS}>History</TabsTrigger>
+            <TabsTrigger value="calendar" className={TRIGGER_CLS}>Calendar</TabsTrigger>
+            <TabsTrigger value="stats" className={TRIGGER_CLS}>Stats</TabsTrigger>
+          </TabsList>
 
-        {tab === 'log' && <TradeForm onSave={handleSave} />}
-        {tab === 'history' && (
-          <History
-            trades={trades}
-            onDelete={id => setConfirmDeleteId(id)}
-            onEdit={handleEdit}
-            loading={loading}
-          />
-        )}
-        {tab === 'calendar' && <CalendarView trades={trades} />}
-        {tab === 'stats' && <Stats trades={trades} />}
+          <TabsContent value="log">
+            <TradeForm onSave={handleSave} />
+          </TabsContent>
+          <TabsContent value="history">
+            <History
+              trades={trades}
+              onDelete={id => setConfirmDeleteId(id)}
+              onEdit={handleEdit}
+              loading={loading}
+            />
+          </TabsContent>
+          <TabsContent value="calendar">
+            <CalendarView trades={trades} />
+          </TabsContent>
+          <TabsContent value="stats">
+            <Stats trades={trades} />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {confirmDeleteId !== null && (
@@ -126,8 +113,6 @@ export default function Home() {
           onCancel={() => setConfirmDeleteId(null)}
         />
       )}
-
-      <ToastStack toasts={toasts} onDismiss={dismissToast} />
     </main>
   );
 }

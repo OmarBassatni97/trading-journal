@@ -2,6 +2,16 @@
 
 import { useState, useCallback } from 'react';
 import { Trade, NewTrade } from '@/types/trade';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
 const CHECKLIST = [
     '1H + 15M highs and lows marked pre-9:30',
@@ -14,9 +24,10 @@ const CHECKLIST = [
     'RR is minimum 1:2',
 ];
 
-const INPUT =
-    'w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300 transition-colors';
-const TEXTAREA = `${INPUT} resize-none`;
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+    return <Label className="text-xs font-medium text-gray-500">{children}</Label>;
+}
 
 type BiasType = 'bull' | 'bear' | 'neutral';
 type OutcomeType = 'win' | 'loss' | 'be' | 'missed';
@@ -128,50 +139,28 @@ export default function EditTradeModal({ trade, onClose, onSave }: Props) {
         }
     }
 
-    const Card = ({ children }: { children: React.ReactNode }) => (
-        <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3">{children}</div>
-    );
-
-    const Label = ({ children }: { children: React.ReactNode }) => (
-        <label className="text-xs font-medium text-gray-500 block mb-1">{children}</label>
-    );
-
     return (
-        <div
-            className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center"
-            onClick={onClose}
-        >
-            <div
-                className="bg-gray-50 w-full max-w-xl rounded-t-2xl max-h-[92vh] overflow-y-auto"
-                onClick={e => e.stopPropagation()}
-            >
-                {/* Header */}
-                <div className="sticky top-0 bg-gray-50 border-b border-gray-100 px-4 py-3 flex items-center justify-between z-10">
-                    <h2 className="text-sm font-semibold text-gray-900">Edit trade</h2>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 transition-colors text-lg leading-none"
-                        aria-label="Close"
-                    >
-                        ✕
-                    </button>
-                </div>
+        <Dialog open onOpenChange={open => !open && onClose()}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+                <DialogHeader className="sticky top-0 bg-background border-b border-gray-100 px-6 py-4 z-10">
+                    <DialogTitle className="text-sm font-semibold">Edit trade</DialogTitle>
+                </DialogHeader>
 
-                <div className="p-4 space-y-4">
+                <div className="p-6 space-y-6">
                     {/* Session Info */}
-                    <Card>
+                    <div className="space-y-3">
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <Label>Date</Label>
-                                <input type="date" value={date} onChange={e => setDate(e.target.value)} className={INPUT} />
+                                <FieldLabel>Date</FieldLabel>
+                                <Input type="date" value={date} onChange={e => setDate(e.target.value)} />
                             </div>
                             <div>
-                                <Label>Asset</Label>
-                                <input type="text" value={asset} onChange={e => setAsset(e.target.value)} className={INPUT} />
+                                <FieldLabel>Asset</FieldLabel>
+                                <Input type="text" value={asset} onChange={e => setAsset(e.target.value)} />
                             </div>
                         </div>
                         <div>
-                            <Label>Daily bias</Label>
+                            <FieldLabel>Daily bias</FieldLabel>
                             <div className="flex gap-2">
                                 {(Object.entries(BIAS_STYLES) as [BiasType, { active: string; label: string }][]).map(([key, s]) => (
                                     <button
@@ -185,13 +174,15 @@ export default function EditTradeModal({ trade, onClose, onSave }: Props) {
                             </div>
                         </div>
                         <div>
-                            <Label>Bias reasoning</Label>
-                            <textarea value={biasReason} onChange={e => setBiasReason(e.target.value)} rows={2} className={TEXTAREA} />
+                            <FieldLabel>Bias reasoning</FieldLabel>
+                            <Textarea value={biasReason} onChange={e => setBiasReason(e.target.value)} rows={2} />
                         </div>
-                    </Card>
+                    </div>
+
+                    <div className="border-t border-gray-100" />
 
                     {/* Checklist */}
-                    <Card>
+                    <div className="space-y-3">
                         {CHECKLIST.map((item, i) => (
                             <label
                                 key={i}
@@ -209,38 +200,42 @@ export default function EditTradeModal({ trade, onClose, onSave }: Props) {
                         <p className="text-xs text-gray-400 pt-1 border-t border-gray-100">
                             {checks.filter(Boolean).length} / 8 criteria met
                         </p>
-                    </Card>
+                    </div>
+
+                    <div className="border-t border-gray-100" />
 
                     {/* Trade Details */}
-                    <Card>
+                    <div className="space-y-3">
                         <div className="grid grid-cols-3 gap-3">
                             <div>
-                                <Label>Entry</Label>
-                                <input type="number" value={entry} onChange={e => setEntry(e.target.value)} step="0.1" className={INPUT} />
+                                <FieldLabel>Entry</FieldLabel>
+                                <Input type="number" value={entry} onChange={e => setEntry(e.target.value)} step="0.1" />
                             </div>
                             <div>
-                                <Label>Stop loss</Label>
-                                <input type="number" value={sl} onChange={e => setSl(e.target.value)} step="0.1" className={INPUT} />
+                                <FieldLabel>Stop loss</FieldLabel>
+                                <Input type="number" value={sl} onChange={e => setSl(e.target.value)} step="0.1" />
                             </div>
                             <div>
-                                <Label>Take profit</Label>
-                                <input type="number" value={tp} onChange={e => setTp(e.target.value)} step="0.1" className={INPUT} />
+                                <FieldLabel>Take profit</FieldLabel>
+                                <Input type="number" value={tp} onChange={e => setTp(e.target.value)} step="0.1" />
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <Label>Entry time</Label>
-                                <input type="time" value={time} onChange={e => setTime(e.target.value)} className={INPUT} />
+                                <FieldLabel>Entry time</FieldLabel>
+                                <Input type="time" value={time} onChange={e => setTime(e.target.value)} />
                             </div>
                             <div>
-                                <Label>Calculated RR</Label>
-                                <input type="text" value={rr} readOnly placeholder="Auto" className={`${INPUT} text-gray-400 cursor-default`} />
+                                <FieldLabel>Calculated RR</FieldLabel>
+                                <Input type="text" value={rr} readOnly placeholder="Auto" className="text-muted-foreground cursor-default" />
                             </div>
                         </div>
-                    </Card>
+                    </div>
+
+                    <div className="border-t border-gray-100" />
 
                     {/* Outcome */}
-                    <Card>
+                    <div className="space-y-3">
                         <div className="flex gap-2">
                             {(Object.entries(OUTCOME_STYLES) as [OutcomeType, { active: string; label: string }][]).map(([key, s]) => (
                                 <button
@@ -253,18 +248,20 @@ export default function EditTradeModal({ trade, onClose, onSave }: Props) {
                             ))}
                         </div>
                         <div>
-                            <Label>What went well</Label>
-                            <textarea value={good} onChange={e => setGood(e.target.value)} rows={2} className={TEXTAREA} />
+                            <FieldLabel>What went well</FieldLabel>
+                            <Textarea value={good} onChange={e => setGood(e.target.value)} rows={2} />
                         </div>
                         <div>
-                            <Label>What to improve</Label>
-                            <textarea value={improve} onChange={e => setImprove(e.target.value)} rows={2} className={TEXTAREA} />
+                            <FieldLabel>What to improve</FieldLabel>
+                            <Textarea value={improve} onChange={e => setImprove(e.target.value)} rows={2} />
                         </div>
-                    </Card>
+                    </div>
+
+                    <div className="border-t border-gray-100" />
 
                     {/* Chart Screenshot */}
-                    <Card>
-                        <Label>Chart screenshot</Label>
+                    <div className="space-y-2">
+                        <FieldLabel>Chart screenshot</FieldLabel>
                         {imagePreview ? (
                             <div className="relative">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -307,19 +304,20 @@ export default function EditTradeModal({ trade, onClose, onSave }: Props) {
                                 />
                             </label>
                         )}
-                    </Card>
+                    </div>
 
                     {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
-                    <button
+                    <Button
                         onClick={handleSave}
                         disabled={saving}
-                        className="w-full py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 active:scale-[0.98] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        variant="outline"
+                        className="w-full"
                     >
                         {saving ? 'Saving…' : '✓  Save changes'}
-                    </button>
+                    </Button>
                 </div>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }

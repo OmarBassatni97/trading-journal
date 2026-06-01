@@ -2,6 +2,10 @@
 
 import { useState, useCallback } from 'react';
 import { NewTrade } from '@/types/trade';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 
 const CHECKLIST = [
   '1H + 15M highs and lows marked pre-9:30',
@@ -13,11 +17,6 @@ const CHECKLIST = [
   'SL placed beyond sweep point',
   'RR is minimum 1:2',
 ];
-
-const INPUT =
-  'w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300 transition-colors';
-
-const TEXTAREA = `${INPUT} resize-none`;
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -38,7 +37,7 @@ function Card({ children }: { children: React.ReactNode }) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-500">{label}</label>
+      <Label className="text-xs font-medium text-gray-500">{label}</Label>
       {children}
     </div>
   );
@@ -168,10 +167,10 @@ export default function TradeForm({ onSave }: Props) {
         <Card>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Date">
-              <input type="date" value={date} onChange={e => setDate(e.target.value)} className={INPUT} />
+              <Input type="date" value={date} onChange={e => setDate(e.target.value)} />
             </Field>
             <Field label="Asset">
-              <input type="text" value={asset} onChange={e => setAsset(e.target.value)} className={INPUT} />
+              <Input type="text" value={asset} onChange={e => setAsset(e.target.value)} />
             </Field>
           </div>
 
@@ -190,12 +189,11 @@ export default function TradeForm({ onSave }: Props) {
           </Field>
 
           <Field label="Bias reasoning (liquidity, trend, key levels)">
-            <textarea
+            <Textarea
               value={biasReason}
               onChange={e => setBiasReason(e.target.value)}
               rows={3}
               placeholder="e.g. Yesterday closed bullish, EQL at 18240 below. Expecting sweep of lows then long..."
-              className={TEXTAREA}
             />
           </Field>
         </Card>
@@ -234,21 +232,21 @@ export default function TradeForm({ onSave }: Props) {
         <Card>
           <div className="grid grid-cols-3 gap-3">
             <Field label="Entry">
-              <input type="number" value={entry} onChange={e => setEntry(e.target.value)} placeholder="18340" step="0.1" className={INPUT} />
+              <Input type="number" value={entry} onChange={e => setEntry(e.target.value)} placeholder="18340" step="0.1" />
             </Field>
             <Field label="Stop loss">
-              <input type="number" value={sl} onChange={e => setSl(e.target.value)} placeholder="18310" step="0.1" className={INPUT} />
+              <Input type="number" value={sl} onChange={e => setSl(e.target.value)} placeholder="18310" step="0.1" />
             </Field>
             <Field label="Take profit">
-              <input type="number" value={tp} onChange={e => setTp(e.target.value)} placeholder="18400" step="0.1" className={INPUT} />
+              <Input type="number" value={tp} onChange={e => setTp(e.target.value)} placeholder="18400" step="0.1" />
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Entry time">
-              <input type="time" value={time} onChange={e => setTime(e.target.value)} className={INPUT} />
+              <Input type="time" value={time} onChange={e => setTime(e.target.value)} />
             </Field>
             <Field label="Calculated RR">
-              <input type="text" value={rr} readOnly placeholder="Auto" className={`${INPUT} text-gray-400 cursor-default`} />
+              <Input type="text" value={rr} readOnly placeholder="Auto" className="text-muted-foreground cursor-default" />
             </Field>
           </div>
         </Card>
@@ -270,21 +268,19 @@ export default function TradeForm({ onSave }: Props) {
             ))}
           </div>
           <Field label="What went well">
-            <textarea
+            <Textarea
               value={good}
               onChange={e => setGood(e.target.value)}
               rows={2}
               placeholder="e.g. Waited patiently for the retest, didn't rush entry..."
-              className={TEXTAREA}
             />
           </Field>
           <Field label="What to improve / why I missed">
-            <textarea
+            <Textarea
               value={improve}
               onChange={e => setImprove(e.target.value)}
               rows={2}
               placeholder="e.g. Entered before the retest confirmed, moved SL too early..."
-              className={TEXTAREA}
             />
           </Field>
         </Card>
@@ -334,13 +330,14 @@ export default function TradeForm({ onSave }: Props) {
         </Card>
       </section>
 
-      <button
+      <Button
         onClick={handleSave}
         disabled={saving}
-        className="w-full py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 active:scale-[0.98] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        variant="outline"
+        className="w-full"
       >
         {saving ? 'Saving…' : '✓  Save to journal'}
-      </button>
+      </Button>
     </div>
   );
 }

@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Trade, NewTrade } from '@/types/trade';
 import EditTradeModal from './EditTradeModal';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -99,24 +101,28 @@ export default function History({ trades, onDelete, onEdit, loading }: Props) {
               <span className="text-sm font-semibold text-gray-900">
                 {dateStr} · {trade.asset}
               </span>
-              <div className="flex items-center gap-2">
-                <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${OUTCOME_BADGE[trade.outcome]}`}>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className={`text-[11px] font-semibold ${OUTCOME_BADGE[trade.outcome]}`}>
                   {OUTCOME_LABEL[trade.outcome]}
-                </span>
-                <button
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-gray-300 hover:text-blue-400"
                   onClick={() => setEditingTrade(trade)}
-                  className="text-gray-300 hover:text-blue-400 transition-colors text-xs px-1 py-0.5 rounded"
                   aria-label="Edit"
                 >
                   ✎
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-gray-300 hover:text-red-400"
                   onClick={() => onDelete(trade.id)}
-                  className="text-gray-300 hover:text-red-400 transition-colors text-xs px-1 py-0.5 rounded"
                   aria-label="Delete"
                 >
                   ✕
-                </button>
+                </Button>
               </div>
             </div>
 
