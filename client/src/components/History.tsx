@@ -8,6 +8,17 @@ import { Button } from '@/components/ui/button';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
+const CHECKLIST = [
+  '1H + 15M highs and lows marked pre-9:30',
+  'Bias aligns with setup direction',
+  'Clear liquidity sweep confirmed',
+  'CHOCH on 1M / 2M after sweep',
+  'IFVG identified and valid',
+  'Price retested IFVG cleanly (no full close through)',
+  'SL placed beyond sweep point',
+  'RR is minimum 1:2',
+];
+
 interface Props {
   trades: Trade[];
   onDelete: (id: number) => void;
@@ -133,7 +144,25 @@ export default function History({ trades, onDelete, onEdit, loading }: Props) {
               {trade.tp != null && <span>TP: {trade.tp}</span>}
               {trade.rr && <span>RR: {trade.rr}</span>}
               {trade.time && <span>{trade.time}</span>}
-              <span>{trade.checkCount}/8 checks</span>
+            </div>
+
+            <div className="mt-2 pt-2 border-t border-gray-50">
+              <p className="text-[10px] font-semibold text-gray-400 tracking-widest uppercase mb-1.5">
+                Setup checklist — {trade.checkCount}/8
+              </p>
+              <ul className="space-y-0.5">
+                {CHECKLIST.map((item, i) => {
+                  const checked = trade.checks?.[i] ?? false;
+                  return (
+                    <li key={i} className={`flex items-start gap-1.5 text-[11px] ${checked ? 'text-gray-700' : 'text-gray-300'}`}>
+                      <span className={`mt-px shrink-0 text-[10px] font-bold ${checked ? 'text-green-500' : 'text-gray-200'}`}>
+                        {checked ? '✓' : '✗'}
+                      </span>
+                      {item}
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
 
             {note && (
